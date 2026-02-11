@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERSP-AF Roshtkala Methodology Dashboard</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A3 landscape;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1E293B;
+    background: #fff;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ===== COLOR VARS ===== */
+  :root {
+    --navy: #1B2A4A;
+    --navy-mid: #243B61;
+    --teal: #0D9488;
+    --teal-light: #CCFBF1;
+    --teal-bg: #F0FDFA;
+    --amber: #D97706;
+    --amber-light: #FEF3C7;
+    --blue: #2563EB;
+    --purple: #7C3AED;
+    --red: #DC2626;
+    --green: #059669;
+    --indigo: #6366F1;
+    --slate: #64748B;
+    --wb-blue: #003A70;
+    --text-dark: #1E293B;
+    --text-med: #475569;
+    --text-light: #94A3B8;
+    --bg-light: #F8FAFC;
+    --card-border: #E2E8F0;
+  }
+
+  /* ===== PAGE STRUCTURE ===== */
+  .page {
+    width: 420mm;
+    height: 297mm;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    background: var(--bg-light);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ===== SHARED LAYOUT ===== */
+  .page-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 12mm 16mm 10mm;
+    position: relative;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3mm;
+    background: var(--teal);
+  }
+  .page-header .page-tag {
+    font-size: 7pt;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 2mm;
+  }
+  .page-header h1 {
+    font-size: 22pt;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 1mm;
+  }
+  .page-header .subtitle {
+    font-size: 9pt;
+    color: var(--text-light);
+    font-weight: 400;
+  }
+  .page-header .logo-area {
+    position: absolute;
+    right: 16mm;
+    top: 14mm;
+    text-align: right;
+  }
+  .page-header .logo-area .org {
+    font-size: 8pt;
+    color: var(--teal);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .page-header .logo-area .sub {
+    font-size: 7pt;
+    color: var(--text-light);
+  }
+
+  .page-body {
+    padding: 8mm 16mm 6mm;
+    height: calc(297mm - 42mm);
+  }
+
+  .page-footer {
+    position: absolute;
+    bottom: 4mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6pt;
+    color: var(--text-light);
+    border-top: 0.5px solid var(--card-border);
+    padding-top: 2mm;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ===== CARD SYSTEM ===== */
+  .card {
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 3mm;
+    padding: 5mm;
+    position: relative;
+  }
+  .card-accent {
+    border-top: 2.5px solid var(--teal);
+  }
+  .card-label {
+    font-size: 6.5pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 2mm;
+  }
+  .card-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2mm;
+  }
+
+  /* ===== GRID HELPERS ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5mm; }
+  .grid-23 { display: grid; grid-template-columns: 2fr 3fr; gap: 5mm; }
+  .grid-32 { display: grid; grid-template-columns: 3fr 2fr; gap: 5mm; }
+  .grid-13 { display: grid; grid-template-columns: 1fr 3fr; gap: 5mm; }
+  .grid-31 { display: grid; grid-template-columns: 3fr 1fr; gap: 5mm; }
+
+  /* ===== STAT BOXES ===== */
+  .stat-box {
+    text-align: center;
+    padding: 3mm 2mm;
+  }
+  .stat-num {
+    font-size: 22pt;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--teal);
+  }
+  .stat-label {
+    font-size: 7pt;
+    color: var(--text-med);
+    margin-top: 1mm;
+    line-height: 1.3;
+  }
+
+  /* ===== PHASE BADGES ===== */
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2mm;
+    padding: 1.5mm 3mm;
+    border-radius: 2mm;
+    font-size: 7pt;
+    font-weight: 700;
+    color: #fff;
+  }
+  .phase-badge .num {
+    font-size: 9pt;
+    font-weight: 800;
+  }
+
+  /* ===== WB TAG ===== */
+  .wb-tag {
+    display: inline-block;
+    background: var(--amber);
+    color: #fff;
+    font-size: 5.5pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1mm 2mm;
+    border-radius: 1mm;
+    vertical-align: middle;
+  }
+
+  /* ===== STATUS TAGS ===== */
+  .status-tag {
+    display: inline-block;
+    font-size: 5.5pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.8mm 2mm;
+    border-radius: 1mm;
+    color: #fff;
+  }
+
+  /* ===== TABLES ===== */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+  }
+  .data-table th {
+    background: var(--navy);
+    color: #fff;
+    font-size: 6.5pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2mm 3mm;
+    text-align: left;
+  }
+  .data-table td {
+    padding: 2mm 3mm;
+    border-bottom: 0.5px solid var(--card-border);
+    vertical-align: middle;
+  }
+  .data-table tr:nth-child(even) td {
+    background: var(--bg-light);
+  }
+
+  /* ===== CHECK ITEMS ===== */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 2mm;
+    margin-bottom: 1.5mm;
+    font-size: 7.5pt;
+    line-height: 1.4;
+  }
+  .check-icon {
+    color: var(--teal);
+    font-weight: 800;
+    font-size: 8pt;
+    flex-shrink: 0;
+    margin-top: -0.3mm;
+  }
+
+  /* ===== FLOW ARROWS ===== */
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 14pt;
+  }
+
+  /* ===== SPECIFIC STYLES ===== */
+  .phase-flow-card {
+    text-align: center;
+    padding: 4mm 2mm;
+    border-radius: 2mm;
+    color: #fff;
+  }
+  .phase-flow-card .num { font-size: 16pt; font-weight: 800; line-height: 1; }
+  .phase-flow-card .icon { font-size: 14pt; margin: 1.5mm 0; }
+  .phase-flow-card .label { font-size: 7pt; font-weight: 700; letter-spacing: 0.5px; }
+
+  .timeline-bar {
+    display: flex;
+    height: 8mm;
+    border-radius: 1.5mm;
+    overflow: hidden;
+    margin: 2mm 0;
+  }
+  .timeline-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5.5pt;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .mini-card {
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 2mm;
+    padding: 3mm;
+  }
+  .mini-card-header {
+    font-size: 6pt;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.5mm;
+  }
+
+  .org-box {
+    text-align: center;
+    padding: 2.5mm 4mm;
+    border-radius: 2mm;
+    font-size: 7pt;
+    font-weight: 600;
+  }
+  .org-line-v {
+    width: 1px;
+    background: var(--card-border);
+    margin: 0 auto;
+    height: 4mm;
+  }
+  .org-line-h {
+    height: 1px;
+    background: var(--card-border);
+  }
+
+  .requirement-row {
+    display: flex;
+    align-items: stretch;
+    gap: 3mm;
+    margin-bottom: 3mm;
+  }
+  .req-number {
+    width: 10mm;
+    min-width: 10mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2mm;
+    font-size: 14pt;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .req-content {
+    flex: 1;
+    padding: 3mm 4mm;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 2mm;
+  }
+  .req-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1mm;
+  }
+  .req-detail {
+    font-size: 7pt;
+    color: var(--text-med);
+    line-height: 1.4;
+  }
+
+  /* ===== SPECIAL ELEMENTS ===== */
+  .highlight-box {
+    background: var(--amber);
+    color: #fff;
+    padding: 4mm 5mm;
+    border-radius: 2mm;
+    font-size: 9pt;
+    font-weight: 700;
+  }
+  .highlight-box .sub {
+    font-size: 7pt;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-top: 1mm;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: var(--card-border);
+    margin: 3mm 0;
+  }
+
+  .text-xs { font-size: 6pt; }
+  .text-sm { font-size: 7pt; }
+  .text-base { font-size: 7.5pt; }
+  .text-md { font-size: 8.5pt; }
+  .text-lg { font-size: 10pt; }
+  .text-teal { color: var(--teal); }
+  .text-amber { color: var(--amber); }
+  .text-navy { color: var(--navy); }
+  .text-med { color: var(--text-med); }
+  .text-light { color: var(--text-light); }
+  .bold { font-weight: 700; }
+  .mt-2 { margin-top: 2mm; }
+  .mt-3 { margin-top: 3mm; }
+  .mt-4 { margin-top: 4mm; }
+  .mb-2 { margin-bottom: 2mm; }
+  .mb-3 { margin-bottom: 3mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PAGE 1: PROJECT SNAPSHOT + METHODOLOGY ARCHITECTURE           -->
+<!-- ============================================================ -->
+<div class="page" id="page1">
+  <div class="page-header">
+    <div class="page-tag">SERSP-AF · Roshtkala District · Community Mobilization Methodology</div>
+    <h1>The CDD Journey: From Awareness to Ownership</h1>
+    <div class="subtitle">Social and Economic Resilience Strengthening Project — Additional Financing · GBAO, Tajikistan · December 2025 – June 2029</div>
+    <div class="logo-area">
+      <div class="org">NSIFT · TFP Agro-Ecology Zarzamin</div>
+      <div class="sub">World Bank / NSIFT Review · February 2026</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Row 1: Key stats + Context -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 3fr; gap: 4mm; margin-bottom: 5mm;">
+      <!-- Stat cards -->
+      <div class="card card-accent" style="text-align: center; padding: 4mm 2mm;">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Jamoats</div>
+      </div>
+      <div class="card card-accent" style="text-align: center; padding: 4mm 2mm;">
+        <div class="stat-num">46</div>
+        <div class="stat-label">Villages</div>
+      </div>
+      <div class="card card-accent" style="text-align: center; padding: 4mm 2mm;">
+        <div class="stat-num">4,000+</div>
+        <div class="stat-label">Households</div>
+      </div>
+      <div class="card card-accent" style="text-align: center; padding: 4mm 2mm;">
+        <div class="stat-num">17,287</div>
+        <div class="stat-label">Population</div>
+      </div>
+      <div class="card card-accent" style="text-align: center; padding: 4mm 2mm;">
+        <div class="stat-num">106</div>
+        <div class="stat-label">Settlements</div>
+      </div>
+      <!-- Context box -->
+      <div class="card" style="padding: 3mm 4mm;">
+        <div class="card-label">PROJECT CONTEXT</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+          <div>
+            <strong style="color: var(--text-dark);">Component 1a:</strong> Subgrants for infrastructure<br>
+            <strong style="color: var(--teal);">Component 1b:</strong> Mobilization & governance <span class="wb-tag" style="font-size: 5pt;">THIS METHODOLOGY</span><br>
+            <strong style="color: var(--text-dark);">Component 2:</strong> Inclusive livelihoods
+          </div>
+          <div>
+            <strong style="color: var(--text-dark);">Component 3:</strong> Project management & M&E<br>
+            <strong style="color: var(--text-dark);">Cycle 1:</strong> Dec 2025 – Jun 2028 (70% budget)<br>
+            <strong style="color: var(--text-dark);">Cycle 2:</strong> Jul 2028 – Jun 2029 (30% budget)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: METHODOLOGY ARCHITECTURE (hero visual) -->
+    <div class="card" style="padding: 5mm 6mm; margin-bottom: 5mm;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4mm;">
+        <div>
+          <div class="card-label">METHODOLOGY ARCHITECTURE</div>
+          <div style="font-size: 10pt; font-weight: 700; color: var(--text-dark);">7 Phases · 2 Cycles · POM Sections 2.3–2.8</div>
+        </div>
+        <div style="font-size: 6.5pt; color: var(--text-light);">Each village completes this journey from first orientation to asset ownership</div>
+      </div>
+
+      <!-- Phase flow -->
+      <div style="display: grid; grid-template-columns: 1fr 0.3fr 1fr 0.3fr 1fr 0.3fr 1fr 0.3fr 1fr 0.3fr 1fr 0.3fr 1fr; gap: 0; align-items: start;">
+        <!-- Phase 0 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--slate);">
+            <div class="num">0</div>
+            <div class="icon">⚙️</div>
+            <div class="label">PREPARE</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            CDA recruitment<br>ToT training<br>Work plan approval<br>Code of Ethics
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 1 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--teal);">
+            <div class="num">1</div>
+            <div class="icon">📢</div>
+            <div class="label">MOBILIZE</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            4-level orientations<br>VPC/JPC elections<br>CA & YM selection<br>Training package
+          </div>
+          <div style="margin-top: 1.5mm;">
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 1</span>
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 3</span>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 2 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--blue);">
+            <div class="num">2</div>
+            <div class="icon">🔍</div>
+            <div class="label">ASSESS</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            Village profiles<br>Climate risk mapping<br>6 FGDs per village<br>Village Priority Meeting
+          </div>
+          <div style="margin-top: 1.5mm;">
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 1</span>
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 2</span>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 3 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--purple);">
+            <div class="num">3</div>
+            <div class="icon">📋</div>
+            <div class="label">DEVELOP</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            VDP/JDP preparation<br>Feasibility studies<br>Proposal drafting<br>NSIFT tech. design
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 4 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--red);">
+            <div class="num">4</div>
+            <div class="icon">🔨</div>
+            <div class="label">BUILD</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            Procurement<br>Construction<br>Quality control<br>NSIFT-managed
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 5 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--amber);">
+            <div class="num">5</div>
+            <div class="icon">✅</div>
+            <div class="label">MONITOR</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            3 social audits<br>(0%, 50%, 100%)<br>Youth Monitor–led<br>Special trackers
+          </div>
+          <div style="margin-top: 1.5mm;">
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 4</span>
+            <span class="wb-tag" style="font-size: 4.5pt;">WB REQ 5</span>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+
+        <!-- Phase 6 -->
+        <div>
+          <div class="phase-flow-card" style="background: var(--green);">
+            <div class="num">6</div>
+            <div class="icon">🤝</div>
+            <div class="label">HANDOVER</div>
+          </div>
+          <div style="font-size: 6pt; color: var(--text-med); margin-top: 2mm; line-height: 1.4; padding: 0 1mm;">
+            O&M committees<br>Asset transfer<br>Technical acceptance<br>Guarantee period
+          </div>
+        </div>
+      </div>
+
+      <!-- Cycle 2 bar -->
+      <div style="margin-top: 4mm; margin-left: calc(100% / 13 * 2 + 2mm); margin-right: 0;">
+        <div style="background: var(--indigo); color: #fff; padding: 1.5mm 4mm; border-radius: 1.5mm; font-size: 6.5pt; font-weight: 700; letter-spacing: 1px; text-align: center;">
+          CYCLE 2 REPEATS PHASES 2–6 (SHORTENED) · Jul 2028 – Jun 2029 · Economic Investment Focus
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Community Structures + Training + Key Risks -->
+    <div style="display: grid; grid-template-columns: 3fr 2fr 2fr; gap: 5mm;">
+      <!-- Community structures -->
+      <div class="card card-accent">
+        <div class="card-label">COMMUNITY STRUCTURES (PER VILLAGE)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-top: 2mm;">
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--teal);">VILLAGE PROJECT COMMITTEE (VPC)</div>
+            <div style="font-size: 17pt; font-weight: 800; color: var(--teal); line-height: 1;">12 <span style="font-size: 7pt; font-weight: 600; color: var(--text-med);">members/village</span></div>
+            <div style="font-size: 6.5pt; color: var(--text-med); margin-top: 1mm;">50% women · 50% under 45 · Secret ballot election</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--amber);">CLIMATE AMBASSADORS (CA) <span class="wb-tag" style="font-size: 4pt;">NEW</span></div>
+            <div style="font-size: 17pt; font-weight: 800; color: var(--amber); line-height: 1;">2 <span style="font-size: 7pt; font-weight: 600; color: var(--text-med);">per village (1M+1F)</span></div>
+            <div style="font-size: 6.5pt; color: var(--text-med); margin-top: 1mm;">3-day training: climate basics, GLOF risks, adaptation</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--amber);">YOUTH MONITORS (YM)</div>
+            <div style="font-size: 17pt; font-weight: 800; color: var(--amber); line-height: 1;">2 <span style="font-size: 7pt; font-weight: 600; color: var(--text-med);">per village (1M+1F)</span></div>
+            <div style="font-size: 6.5pt; color: var(--text-med); margin-top: 1mm;">Lead 3-phase social audits · 2-day training</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--blue);">JAMOAT PROJECT COMMISSION (JPC)</div>
+            <div style="font-size: 17pt; font-weight: 800; color: var(--blue); line-height: 1;">~22 <span style="font-size: 7pt; font-weight: 600; color: var(--text-med);">members/jamoat</span></div>
+            <div style="font-size: 6.5pt; color: var(--text-med); margin-top: 1mm;">VPC reps + jamoat officials · 50% women</div>
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 6pt; color: var(--text-light); margin-top: 2mm;">
+          <strong>Total Roshtkala:</strong> 542 VPC + 90 CA + 90 YM + 130 JPC = <strong style="color: var(--teal);">852 community leaders</strong>
+        </div>
+      </div>
+
+      <!-- Participation targets -->
+      <div class="card" style="border-top: 2.5px solid var(--amber);">
+        <div class="card-label" style="color: var(--amber);">INCLUSION TARGETS</div>
+        <table style="width: 100%; font-size: 7pt; margin-top: 2mm;">
+          <tr style="border-bottom: 0.5px solid var(--card-border);">
+            <td style="padding: 1.5mm 0; color: var(--text-med);">Village meetings attendance</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">≥60% HH</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--card-border);">
+            <td style="padding: 1.5mm 0; color: var(--text-med);">Women participation (all activities)</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">≥50%</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--card-border);">
+            <td style="padding: 1.5mm 0; color: var(--text-med);">Youth in VPC/JPC (under 45)</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">≥50%</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--card-border);">
+            <td style="padding: 1.5mm 0; color: var(--text-med);">FGDs per village (Cycle 1)</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">6 groups</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--card-border);">
+            <td style="padding: 1.5mm 0; color: var(--text-med);">FGDs per village (Cycle 2)</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">3 groups</td>
+          </tr>
+          <tr>
+            <td style="padding: 1.5mm 0; color: var(--text-med);">Social audits per subproject</td>
+            <td style="padding: 1.5mm 0; text-align: right; font-weight: 700;">3 phases</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Key risks -->
+      <div class="card" style="border-top: 2.5px solid var(--red);">
+        <div class="card-label" style="color: var(--red);">CONTEXT RISKS</div>
+        <div style="font-size: 7pt; line-height: 1.5; color: var(--text-med); margin-top: 2mm;">
+          <div style="margin-bottom: 2mm;">
+            <strong style="color: var(--text-dark);">⚠ Climate & Geography</strong><br>
+            High altitude · Limited winter access<br>
+            GLOF, landslide & earthquake risk<br>
+            Short construction: May–Sep only
+          </div>
+          <div style="margin-bottom: 2mm;">
+            <strong style="color: var(--text-dark);">⚠ Operational</strong><br>
+            106 settlements across 46 villages<br>
+            Remote locations, long travel times<br>
+            Limited internet/connectivity
+          </div>
+          <div>
+            <strong style="color: var(--text-dark);">⚠ Social</strong><br>
+            Gender norms may limit women's engagement<br>
+            Youth outmigration during seasons
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>SERSP-AF · NSIFT · TFP Agro-Ecology Zarzamin · Contract №SERSP-AF-CS-1-2</span>
+    <span>Page 1 of 4 · Project Snapshot & Methodology Architecture</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2: WB COMPLIANCE MATRIX + POM CHANGES                    -->
+<!-- ============================================================ -->
+<div class="page" id="page2">
+  <div class="page-header">
+    <div class="page-tag">World Bank Requirements & POM Compliance</div>
+    <h1>Your Questions — Our Answers</h1>
+    <div class="subtitle">Addressing all 5 requirements from WB email (Sana Zia / Christopher Finch, February 5, 2026)</div>
+    <div class="logo-area">
+      <div class="org">COMPLIANCE MATRIX</div>
+      <div class="sub">AF POM Sections 2.3–2.8</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Top: 5 WB Requirements -->
+    <div style="margin-bottom: 5mm;">
+      <div class="card-label mb-2">WORLD BANK REQUIREMENTS — RESPONSE SUMMARY</div>
+
+      <!-- Req 1 -->
+      <div class="requirement-row">
+        <div class="req-number" style="background: var(--teal);">1</div>
+        <div class="req-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4mm;">
+          <div>
+            <div class="req-title">Climate Integration</div>
+            <div class="req-detail">Through mobilization, capacity building, VDP/JDP</div>
+          </div>
+          <div style="font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+            <strong style="color: var(--teal);">✓ Climate Ambassadors:</strong> 90 CAs (2/village, 1M+1F) — NEW role in AF POM. Trained on climate basics, GLOF risk assessment, adaptation options.<br>
+            <strong style="color: var(--teal);">✓ Integration points:</strong> CA selection (Phase 1) → Climate risk mapping (Phase 2) → Climate-informed VDP/JDP (Phase 3) → Design screening (Phase 4) → Audit verification (Phase 5)<br>
+            <strong style="color: var(--teal);">✓ Training:</strong> 3-day CA program covering climate science basics, participatory risk mapping, local adaptation strategies, GLOF early warning
+          </div>
+        </div>
+      </div>
+
+      <!-- Req 2 -->
+      <div class="requirement-row">
+        <div class="req-number" style="background: var(--blue);">2</div>
+        <div class="req-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4mm;">
+          <div>
+            <div class="req-title">Village Profile & Govt Alignment</div>
+            <div class="req-detail">Templates and government planning integration</div>
+          </div>
+          <div style="font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+            <strong style="color: var(--blue);">✓ Village Profiles:</strong> 46 profiles covering demographics, infrastructure, services, climate vulnerabilities. Template aligned with government database format.<br>
+            <strong style="color: var(--blue);">✓ Data flow:</strong> Village Profile → Jamoat Database → District Development Plans. JDP priorities shared with jamoat administration for alignment.<br>
+            <strong style="color: var(--blue);">✓ Government engagement:</strong> District/jamoat officials participate in orientations (NSIFT-led) and JPC membership
+          </div>
+        </div>
+      </div>
+
+      <!-- Req 3 -->
+      <div class="requirement-row">
+        <div class="req-number" style="background: var(--purple);">3</div>
+        <div class="req-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4mm;">
+          <div>
+            <div class="req-title">Component 2 Livelihoods</div>
+            <div class="req-detail">Integration in orientation materials</div>
+          </div>
+          <div style="font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+            <strong style="color: var(--purple);">✓ Integrated at every level:</strong> District (C2 overview) → Jamoat (eligibility & access) → Village (livelihood opportunities) → FGDs (entrepreneurs group) → JDP (infrastructure-livelihood linkages)<br>
+            <strong style="color: var(--purple);">✓ Cycle 2 focus:</strong> Economic investment orientation — markets, processing, storage facilities<br>
+            <strong style="color: var(--purple);">✓ Materials:</strong> C2 information included in all orientation packages and VPC/JPC training materials
+          </div>
+        </div>
+      </div>
+
+      <!-- Req 4 -->
+      <div class="requirement-row">
+        <div class="req-number" style="background: var(--amber);">4</div>
+        <div class="req-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4mm;">
+          <div>
+            <div class="req-title">Special Tracking Indicators</div>
+            <div class="req-detail">2 specific trackers required</div>
+          </div>
+          <div style="font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+            <strong style="color: var(--amber);">✓ Tracker 1:</strong> VPC/JPC members who are or become local government employees → measures governance strengthening & institutional linkage<br>
+            <strong style="color: var(--amber);">✓ Tracker 2:</strong> Community priorities funded by other sources (government, NGOs, private sector) → measures catalytic effect of CDD planning<br>
+            <strong style="color: var(--amber);">✓ Mechanism:</strong> CDAs collect data monthly. TFP M&E Expert aggregates. Included in monthly & phase progress reports.
+          </div>
+        </div>
+      </div>
+
+      <!-- Req 5 -->
+      <div class="requirement-row">
+        <div class="req-number" style="background: var(--green);">5</div>
+        <div class="req-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4mm;">
+          <div>
+            <div class="req-title">Progress Reporting</div>
+            <div class="req-detail">Procedures and frequency</div>
+          </div>
+          <div style="font-size: 7pt; color: var(--text-med); line-height: 1.5;">
+            <strong style="color: var(--green);">✓ Monthly reports:</strong> Activities vs. plan, challenges, budget, participation data (gender/youth disaggregated), both special trackers, photos<br>
+            <strong style="color: var(--green);">✓ Phase reports:</strong> Submitted at end of each phase (0–6) with cumulative data<br>
+            <strong style="color: var(--green);">✓ Chain:</strong> CDAs (daily collection) → TFP (monthly consolidation to NSIFT) → NSIFT (forwards to WB)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: POM Changes Table -->
+    <div class="card" style="padding: 4mm 5mm;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3mm;">
+        <div>
+          <div class="card-label">KEY AF POM CHANGES FROM PARENT SERSP</div>
+          <div style="font-size: 7pt; color: var(--text-light);">All changes documented in Methodology Annex: AF POM Change Notes 1–9</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 18%;">CHANGE</th>
+            <th style="width: 28%;">PARENT SERSP</th>
+            <th style="width: 34%;">AF POM (CURRENT)</th>
+            <th style="width: 12%;">IMPACT</th>
+            <th style="width: 8%;">STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Climate Ambassadors</strong></td>
+            <td>Did not exist</td>
+            <td>90 CAs (2 per village), integrated at every phase</td>
+            <td>All subprojects climate-screened</td>
+            <td><span class="status-tag" style="background: var(--amber);">NEW</span></td>
+          </tr>
+          <tr>
+            <td><strong>Youth Age Definition</strong></td>
+            <td>Under 35</td>
+            <td>Under 45</td>
+            <td>Wider eligible pool for VPC/JPC youth quota</td>
+            <td><span class="status-tag" style="background: var(--teal);">EXPANDED</span></td>
+          </tr>
+          <tr>
+            <td><strong>Orientation Leadership</strong></td>
+            <td>TFP led all levels</td>
+            <td>NSIFT leads district/jamoat; TFP leads village/mahalla</td>
+            <td>Stronger NSIFT ownership & government buy-in</td>
+            <td><span class="status-tag" style="background: var(--blue);">SHIFTED</span></td>
+          </tr>
+          <tr>
+            <td><strong>Component 2 Integration</strong></td>
+            <td>Not included in mobilization</td>
+            <td>Mandatory at all orientation & planning stages</td>
+            <td>Livelihoods embedded from Day 1</td>
+            <td><span class="status-tag" style="background: var(--amber);">ADDED</span></td>
+          </tr>
+          <tr>
+            <td><strong>Social Audits</strong></td>
+            <td>General audit requirement</td>
+            <td>Three explicit phases: 0%, 50%, 100%</td>
+            <td>Structured accountability at each milestone</td>
+            <td><span class="status-tag" style="background: var(--purple);">SPECIFIED</span></td>
+          </tr>
+          <tr>
+            <td><strong>Investment Cycles</strong></td>
+            <td>3 cycles (incl. youth cycle)</td>
+            <td>2 cycles only; youth integrated throughout</td>
+            <td>Cycle 3 deleted; youth mainstreamed</td>
+            <td><span class="status-tag" style="background: var(--red);">REDUCED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>SERSP-AF · NSIFT · TFP Agro-Ecology Zarzamin · Contract №SERSP-AF-CS-1-2</span>
+    <span>Page 2 of 4 · WB Compliance & POM Changes</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 3: IMPLEMENTATION ROADMAP + ORG CHART                    -->
+<!-- ============================================================ -->
+<div class="page" id="page3">
+  <div class="page-header">
+    <div class="page-tag">Implementation Timeline & Team Structure</div>
+    <h1>Roadmap: December 2025 – June 2029</h1>
+    <div class="subtitle">Two investment cycles across 42 months · 7 implementation phases · Phased community engagement</div>
+    <div class="logo-area">
+      <div class="org">IMPLEMENTATION PLAN</div>
+      <div class="sub">Based on AF POM & Approved Workplan</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Timeline visualization -->
+    <div class="card" style="padding: 5mm 6mm; margin-bottom: 5mm;">
+      <div class="card-label">CYCLE 1: DECEMBER 2025 – JUNE 2028 (70% BUDGET)</div>
+
+      <!-- Year headers -->
+      <div style="display: grid; grid-template-columns: 60mm 1fr 1fr 1fr; gap: 0; margin-bottom: 1mm; margin-top: 3mm;">
+        <div></div>
+        <div style="text-align: center; font-size: 7pt; font-weight: 700; color: var(--text-dark); border-bottom: 1px solid var(--card-border); padding-bottom: 1mm;">2026</div>
+        <div style="text-align: center; font-size: 7pt; font-weight: 700; color: var(--text-dark); border-bottom: 1px solid var(--card-border); padding-bottom: 1mm;">2027</div>
+        <div style="text-align: center; font-size: 7pt; font-weight: 700; color: var(--text-dark); border-bottom: 1px solid var(--card-border); padding-bottom: 1mm;">2028 (H1)</div>
+      </div>
+
+      <!-- Phase bars -->
+      <div style="margin-top: 2mm;">
+        <!-- Phase 0 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--slate); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P0</span> <strong>Preparation</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 0; width: 8%; height: 100%; background: var(--slate); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Dec 25 – Feb 26</div>
+          </div>
+        </div>
+        <!-- Phase 1 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--teal); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P1</span> <strong>Mobilization</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 5%; width: 18%; height: 100%; background: var(--teal); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Mar – Jul 2026</div>
+          </div>
+        </div>
+        <!-- Phase 2 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--blue); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P2</span> <strong>Needs Assessment</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 20%; width: 20%; height: 100%; background: var(--blue); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Aug – Dec 2026</div>
+          </div>
+        </div>
+        <!-- Phase 3 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--purple); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P3</span> <strong>Subproject Development</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 37%; width: 15%; height: 100%; background: var(--purple); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Jan – Apr 2027</div>
+          </div>
+        </div>
+        <!-- Phase 4 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--red); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P4</span> <strong>Implementation</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 48%; width: 28%; height: 100%; background: var(--red); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">May 2027 – Jan 2028</div>
+          </div>
+        </div>
+        <!-- Phase 5 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--amber); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P5</span> <strong>Monitoring & Audits</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 48%; width: 35%; height: 100%; background: var(--amber); opacity: 0.7; border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Continuous during P4–P6</div>
+          </div>
+        </div>
+        <!-- Phase 6 -->
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-bottom: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><span style="background: var(--green); color: #fff; padding: 0.5mm 2mm; border-radius: 1mm; font-weight: 700; font-size: 6pt;">P6</span> <strong>O&M & Handover</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 73%; width: 17%; height: 100%; background: var(--green); border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">Feb – Jun 2028</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cycle 2 -->
+      <div style="margin-top: 3mm; border-top: 1px solid var(--card-border); padding-top: 3mm;">
+        <div class="card-label" style="color: var(--indigo);">CYCLE 2: JULY 2028 – JUNE 2029 (30% BUDGET · SHORTENED VERIFICATION)</div>
+        <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 2mm; margin-top: 2mm; align-items: center;">
+          <div style="font-size: 7pt;"><strong>Phases 2–6 compressed</strong></div>
+          <div style="position: relative; height: 7mm;">
+            <div style="position: absolute; left: 0; width: 16%; height: 100%; background: var(--blue); border-radius: 1mm 0 0 1mm; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">P2</div>
+            <div style="position: absolute; left: 16%; width: 16%; height: 100%; background: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">P3</div>
+            <div style="position: absolute; left: 32%; width: 42%; height: 100%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">P4 Implementation</div>
+            <div style="position: absolute; left: 74%; width: 26%; height: 100%; background: var(--green); border-radius: 0 1mm 1mm 0; display: flex; align-items: center; justify-content: center; font-size: 5pt; color: #fff; font-weight: 600;">P5–P6</div>
+          </div>
+        </div>
+        <div style="font-size: 6.5pt; color: var(--text-med); margin-top: 2mm;">
+          Economic investment focus (markets, processing, storage) · 3 FGDs per village (women, men, youth) · Refresher training only · VDP update, not full new profiles
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom row: Org chart + Orientation Cascade + Deliverables -->
+    <div style="display: grid; grid-template-columns: 2fr 2fr 3fr; gap: 5mm;">
+      <!-- Org Chart -->
+      <div class="card card-accent">
+        <div class="card-label">TFP TEAM STRUCTURE</div>
+        <!-- PM -->
+        <div style="text-align: center; margin-top: 3mm;">
+          <div class="org-box" style="background: var(--navy); color: #fff; display: inline-block;">Project Manager</div>
+        </div>
+        <div class="org-line-v"></div>
+        <!-- Experts row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2mm; text-align: center;">
+          <div class="org-box" style="background: var(--teal-light); color: var(--teal);">M&E Expert</div>
+          <div class="org-box" style="background: var(--teal-light); color: var(--teal);">Technical Expert</div>
+          <div class="org-box" style="background: var(--teal-light); color: var(--teal);">Financial Expert</div>
+        </div>
+        <div class="org-line-v"></div>
+        <!-- Senior CDA -->
+        <div style="text-align: center;">
+          <div class="org-box" style="background: var(--amber-light); color: var(--amber); display: inline-block;">Senior CDA (Field Coordinator)</div>
+        </div>
+        <div class="org-line-v"></div>
+        <!-- CDAs -->
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 1mm; text-align: center;">
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 1<br><span style="font-size: 4.5pt; opacity: 0.8;">♀</span></div>
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 2<br><span style="font-size: 4.5pt; opacity: 0.8;">♀</span></div>
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 3<br><span style="font-size: 4.5pt; opacity: 0.8;">♂</span></div>
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 4<br><span style="font-size: 4.5pt; opacity: 0.8;">♀</span></div>
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 5<br><span style="font-size: 4.5pt; opacity: 0.8;">♂</span></div>
+          <div class="org-box" style="background: var(--teal); color: #fff; font-size: 5.5pt; padding: 1.5mm;">CDA 6<br><span style="font-size: 4.5pt; opacity: 0.8;">♂</span></div>
+        </div>
+        <div style="font-size: 5.5pt; color: var(--text-light); margin-top: 2mm; text-align: center;">
+          7 CDAs total (4 women, 3 men) · 1 CDA per jamoat · Senior CDA covers 7th
+        </div>
+      </div>
+
+      <!-- Orientation cascade -->
+      <div class="card" style="border-top: 2.5px solid var(--teal);">
+        <div class="card-label">ORIENTATION CASCADE (PHASE 1)</div>
+        <div style="margin-top: 3mm;">
+          <!-- Level 1 -->
+          <div style="background: var(--navy); color: #fff; padding: 2.5mm 3mm; border-radius: 2mm; margin-bottom: 1mm;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 8pt; font-weight: 700;">District Level</div>
+                <div style="font-size: 6pt; opacity: 0.8;">NSIFT leads · Officials, jamoat heads, media</div>
+              </div>
+              <div style="font-size: 12pt; font-weight: 800;">1</div>
+            </div>
+          </div>
+          <div style="text-align: center; font-size: 10pt; color: var(--text-light); line-height: 1;">↓</div>
+          <!-- Level 2 -->
+          <div style="background: var(--teal); color: #fff; padding: 2.5mm 3mm; border-radius: 2mm; margin-bottom: 1mm;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 8pt; font-weight: 700;">Jamoat Level</div>
+                <div style="font-size: 6pt; opacity: 0.8;">NSIFT leads · Jamoat officials, village heads</div>
+              </div>
+              <div style="font-size: 12pt; font-weight: 800;">6</div>
+            </div>
+          </div>
+          <div style="text-align: center; font-size: 10pt; color: var(--text-light); line-height: 1;">↓</div>
+          <!-- Level 3 -->
+          <div style="background: var(--blue); color: #fff; padding: 2.5mm 3mm; border-radius: 2mm; margin-bottom: 1mm;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 8pt; font-weight: 700;">Village Level</div>
+                <div style="font-size: 6pt; opacity: 0.8;">TFP/CDAs lead · 60% HH, 50% women</div>
+              </div>
+              <div style="font-size: 12pt; font-weight: 800;">46</div>
+            </div>
+          </div>
+          <div style="text-align: center; font-size: 10pt; color: var(--text-light); line-height: 1;">↓</div>
+          <!-- Level 4 -->
+          <div style="background: var(--purple); color: #fff; padding: 2.5mm 3mm; border-radius: 2mm;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 8pt; font-weight: 700;">Mahalla Level</div>
+                <div style="font-size: 6pt; opacity: 0.8;">CDAs lead · Women, youth, marginalized</div>
+              </div>
+              <div style="font-size: 12pt; font-weight: 800;">90+</div>
+            </div>
+          </div>
+        </div>
+        <div style="background: var(--amber-light); padding: 2mm 3mm; border-radius: 1.5mm; margin-top: 2mm; font-size: 6pt; color: var(--amber);">
+          <strong>POM CHANGE:</strong> NSIFT now leads district & jamoat (TFP led all in parent SERSP)
+        </div>
+      </div>
+
+      <!-- Deliverables per phase -->
+      <div class="card" style="border-top: 2.5px solid var(--navy);">
+        <div class="card-label" style="color: var(--navy);">KEY DELIVERABLES PER PHASE</div>
+        <table class="data-table" style="margin-top: 2mm;">
+          <thead>
+            <tr>
+              <th style="width: 12%;">PHASE</th>
+              <th style="width: 38%;">KEY DELIVERABLES</th>
+              <th style="width: 25%;">POM SECTION</th>
+              <th style="width: 25%;">ROSHTKALA SCALE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="background: var(--slate); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P0</span></td>
+              <td>CDA team, ToT report, workplan</td>
+              <td>Section 2.3</td>
+              <td>7 CDAs, 50 ToT participants</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--teal); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P1</span></td>
+              <td>Orientations, VPC/JPC formed, CA/YM selected</td>
+              <td>Sections 2.4, 2.5</td>
+              <td>143+ meetings, 852 leaders</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--blue); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P2</span></td>
+              <td>Village profiles, FGDs, VPMs, VDPs</td>
+              <td>Section 2.6</td>
+              <td>46 profiles, 276 FGDs, 46 VDPs</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--purple); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P3</span></td>
+              <td>Proposals, JDPs, technical designs</td>
+              <td>Section 2.7</td>
+              <td>6 JDPs, ~46 subproject proposals</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--red); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P4</span></td>
+              <td>Procurement, construction, quality reports</td>
+              <td>Section 2.8</td>
+              <td>Managed by NSIFT + JPC</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--amber); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P5</span></td>
+              <td>3 social audit reports per subproject</td>
+              <td>Section 2.8</td>
+              <td>~138 audit events (3×46)</td>
+            </tr>
+            <tr>
+              <td><span style="background: var(--green); color: #fff; padding: 0.3mm 1.5mm; border-radius: 1mm; font-size: 6pt; font-weight: 700;">P6</span></td>
+              <td>O&M plans, acceptance certificates, handover</td>
+              <td>Section 2.8</td>
+              <td>46 O&M plans, 46 certificates</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>SERSP-AF · NSIFT · TFP Agro-Ecology Zarzamin · Contract №SERSP-AF-CS-1-2</span>
+    <span>Page 3 of 4 · Roadmap & Team Structure</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 4: DASHBOARD NUMBERS + READINESS + NEXT STEPS            -->
+<!-- ============================================================ -->
+<div class="page" id="page4">
+  <div class="page-header">
+    <div class="page-tag">Readiness Dashboard & Next Steps</div>
+    <h1>Phase 0 Complete — Ready to Mobilize</h1>
+    <div class="subtitle">Current status: All Phase 0 deliverables completed · Awaiting WB no-objection to proceed with village-level mobilization</div>
+    <div class="logo-area">
+      <div class="org">STATUS: FEBRUARY 2026</div>
+      <div class="sub">Tranche 1 Report Submitted</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Row 1: Key numbers dashboard -->
+    <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4mm; margin-bottom: 5mm;">
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt;">7</div>
+        <div class="stat-label">CDAs<br>Deployed</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt; color: var(--amber);">4 / 3</div>
+        <div class="stat-label">Women / Men<br>(exceeds 50%)</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt;">50</div>
+        <div class="stat-label">ToT<br>Participants</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt;">5</div>
+        <div class="stat-label">ToT Sessions<br>Completed</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt; color: var(--green);">✓</div>
+        <div class="stat-label">Workplan<br>Approved</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt; color: var(--green);">✓</div>
+        <div class="stat-label">NSIFT<br>No-Objection</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt; color: var(--green);">✓</div>
+        <div class="stat-label">Ethics Codes<br>Signed</div>
+      </div>
+      <div class="card card-accent stat-box">
+        <div class="stat-num" style="font-size: 18pt; color: var(--green);">✓</div>
+        <div class="stat-label">Methodology<br>Complete</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Completion matrix + Next steps + Request -->
+    <div style="display: grid; grid-template-columns: 2fr 2fr 3fr; gap: 5mm; margin-bottom: 5mm;">
+      <!-- Phase 0 completion checklist -->
+      <div class="card card-accent">
+        <div class="card-label">PHASE 0 DELIVERABLES STATUS</div>
+        <div style="margin-top: 2mm;">
+          <div class="check-item"><span class="check-icon">✓</span> CDA recruitment (7 CDAs, NSIFT no-objection received)</div>
+          <div class="check-item"><span class="check-icon">✓</span> Training of Trainers (5 sessions completed)</div>
+          <div class="check-item"><span class="check-icon">✓</span> Workplan submitted, reviewed & approved by NSIFT</div>
+          <div class="check-item"><span class="check-icon">✓</span> All staff signed Code of Ethics</div>
+          <div class="check-item"><span class="check-icon">✓</span> Organizational structure established</div>
+          <div class="check-item"><span class="check-icon">✓</span> Methodology document prepared</div>
+          <div class="check-item"><span class="check-icon">✓</span> WB compliance matrix completed (all 5 requirements)</div>
+          <div class="check-item"><span class="check-icon">✓</span> Implementation roadmap finalized</div>
+          <div class="check-item"><span class="check-icon">✓</span> Tranche 1 Report submitted</div>
+        </div>
+      </div>
+
+      <!-- Next steps -->
+      <div class="card" style="border-top: 2.5px solid var(--amber);">
+        <div class="card-label" style="color: var(--amber);">NEXT STEPS (PHASE 1 LAUNCH)</div>
+        <div style="margin-top: 2mm;">
+          <div style="display: flex; gap: 2mm; margin-bottom: 2.5mm; align-items: flex-start;">
+            <div style="background: var(--amber); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">1</div>
+            <div style="font-size: 7.5pt;"><strong>WB no-objection</strong> on methodology<br><span style="color: var(--text-light); font-size: 6.5pt;">Pending — this presentation</span></div>
+          </div>
+          <div style="display: flex; gap: 2mm; margin-bottom: 2.5mm; align-items: flex-start;">
+            <div style="background: var(--navy); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">2</div>
+            <div style="font-size: 7.5pt;"><strong>District orientation</strong> (NSIFT-led)<br><span style="color: var(--text-light); font-size: 6.5pt;">1 meeting · Officials + media</span></div>
+          </div>
+          <div style="display: flex; gap: 2mm; margin-bottom: 2.5mm; align-items: flex-start;">
+            <div style="background: var(--teal); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">3</div>
+            <div style="font-size: 7.5pt;"><strong>Jamoat orientations</strong> (NSIFT-led)<br><span style="color: var(--text-light); font-size: 6.5pt;">6 meetings · Jamoat officials</span></div>
+          </div>
+          <div style="display: flex; gap: 2mm; margin-bottom: 2.5mm; align-items: flex-start;">
+            <div style="background: var(--blue); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">4</div>
+            <div style="font-size: 7.5pt;"><strong>Village orientations</strong> (TFP/CDAs)<br><span style="color: var(--text-light); font-size: 6.5pt;">46 meetings · All residents</span></div>
+          </div>
+          <div style="display: flex; gap: 2mm; margin-bottom: 2.5mm; align-items: flex-start;">
+            <div style="background: var(--purple); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">5</div>
+            <div style="font-size: 7.5pt;"><strong>Mahalla discussions</strong> & VPC nominations<br><span style="color: var(--text-light); font-size: 6.5pt;">90+ meetings · Focus on inclusion</span></div>
+          </div>
+          <div style="display: flex; gap: 2mm; align-items: flex-start;">
+            <div style="background: var(--green); color: #fff; width: 5mm; height: 5mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; font-weight: 800; flex-shrink: 0;">6</div>
+            <div style="font-size: 7.5pt;"><strong>VPC elections</strong> & structure formation<br><span style="color: var(--text-light); font-size: 6.5pt;">46 villages · Secret ballot</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents submitted + Request -->
+      <div>
+        <div class="card" style="border-top: 2.5px solid var(--navy); margin-bottom: 4mm;">
+          <div class="card-label" style="color: var(--navy);">DOCUMENTS SUBMITTED FOR REVIEW</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; margin-top: 2mm;">
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">Community Mobilization Methodology (Complete)</span></div>
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">WB Compliance Matrix (5 Requirements)</span></div>
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">AF POM Change Notes (Annex, Notes 1–9)</span></div>
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">Implementation Roadmap (6-page visual)</span></div>
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">TFP Workplan (Approved by NSIFT)</span></div>
+            <div class="check-item"><span class="check-icon">✓</span> <span style="font-size: 7pt;">This Dashboard Infographic</span></div>
+          </div>
+        </div>
+
+        <!-- REQUEST BOX -->
+        <div class="highlight-box">
+          REQUEST: World Bank no-objection to proceed with village-level mobilization activities
+          <div class="sub">All deliverables submitted. Team deployed. Methodology POM-aligned. Ready for Phase 1 launch upon approval.</div>
+        </div>
+
+        <!-- Contact -->
+        <div style="margin-top: 4mm; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm;">
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--teal);">TFP CONTACT</div>
+            <div style="font-size: 7pt; color: var(--text-med);">Agro-Ecology Zarzamin<br>TFP for Roshtkala District</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-header" style="color: var(--navy);">NSIFT</div>
+            <div style="font-size: 7pt; color: var(--text-med);">National Social Investment Fund<br>of Tajikistan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: Full project numbers at a glance -->
+    <div class="card" style="padding: 4mm 6mm;">
+      <div class="card-label">FULL PROJECT NUMBERS AT A GLANCE (BOTH CYCLES)</div>
+      <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 3mm; margin-top: 3mm;">
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--navy);">143+</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Orientation<br>Meetings</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--teal);">852</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Community<br>Leaders Trained</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--blue);">46</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Village<br>Profiles</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--blue);">276</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Focus Group<br>Discussions (C1)</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--purple);">46</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Village Dev.<br>Plans</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--purple);">6</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Jamoat Dev.<br>Plans</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--red);">~46</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Subprojects<br>per Cycle</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--amber);">138</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Social Audit<br>Events (C1)</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--green);">46</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">O&M Plans<br>& Handovers</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 14pt; font-weight: 800; color: var(--indigo);">42</div>
+          <div style="font-size: 5.5pt; color: var(--text-med); line-height: 1.3;">Months<br>Total Duration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>SERSP-AF · NSIFT · TFP Agro-Ecology Zarzamin · Contract №SERSP-AF-CS-1-2 · February 2026</span>
+    <span>Page 4 of 4 · Readiness Dashboard & Next Steps</span>
+  </div>
+</div>
+
+</body>
+</html>
