@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERSP AF Roshtkala - Project Cycle Logic</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #f0f4f8; 
+    padding: 20px;
+    color: #1a202c;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #1a365d, #2c5282);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+  }
+  .header h1 { font-size: 22px; margin-bottom: 4px; }
+  .header h2 { font-size: 14px; font-weight: 400; opacity: 0.85; }
+  
+  /* Tab navigation */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.2s;
+  }
+  .tab:hover { background: #edf2f7; }
+  .tab.active { 
+    background: #2c5282; 
+    color: white; 
+    border-color: #2c5282; 
+  }
+  
+  .content {
+    background: white;
+    border-radius: 0 12px 12px 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    min-height: 500px;
+  }
+  
+  /* Full cycle overview */
+  .cycle-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .phase-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .phase-label {
+    min-width: 160px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  .phase-steps {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .step-box {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 2px solid;
+    position: relative;
+    cursor: default;
+    line-height: 1.3;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  .step-box .lead {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+  
+  .arrow-right {
+    color: #a0aec0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* Phase colors */
+  .ph1 { background: #2b6cb0; }
+  .ph1-step { border-color: #bee3f8; background: #ebf8ff; color: #2a4365; }
+  
+  .ph2 { background: #2f855a; }
+  .ph2-step { border-color: #c6f6d5; background: #f0fff4; color: #22543d; }
+  
+  .ph3 { background: #b7791f; }
+  .ph3-step { border-color: #fefcbf; background: #fffff0; color: #744210; }
+  
+  .ph4 { background: #9b2c2c; }
+  .ph4-step { border-color: #fed7d7; background: #fff5f5; color: #742a2a; }
+  
+  .ph5 { background: #553c9a; }
+  .ph5-step { border-color: #e9d8fd; background: #faf5ff; color: #44337a; }
+  
+  .ph6 { background: #285e61; }
+  .ph6-step { border-color: #b2f5ea; background: #e6fffa; color: #234e52; }
+  
+  /* Structures view */
+  .structures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  
+  .structure-card {
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px solid;
+  }
+  
+  .structure-card h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .structure-card .full-name {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 12px;
+  }
+  .structure-card .stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .structure-card .stat:last-child { border-bottom: none; }
+  .structure-card .stat .label { color: #718096; }
+  .structure-card .stat .value { font-weight: 600; }
+  .structure-card .role-desc {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.03);
+  }
+  
+  .vpc-card { border-color: #bee3f8; background: #ebf8ff; }
+  .vpc-card h3 { color: #2b6cb0; }
+  
+  .jpc-card { border-color: #c6f6d5; background: #f0fff4; }
+  .jpc-card h3 { color: #2f855a; }
+  
+  .ym-card { border-color: #fed7d7; background: #fff5f5; }
+  .ym-card h3 { color: #c53030; }
+  
+  .ca-card { border-color: #fefcbf; background: #fffff0; }
+  .ca-card h3 { color: #b7791f; }
+  
+  /* Planning pipeline */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 12px;
+  }
+  
+  .pipe-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+    padding-left: 40px;
+    padding-bottom: 24px;
+  }
+  
+  .pipe-step::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #cbd5e0;
+  }
+  
+  .pipe-step:last-child::before {
+    bottom: 50%;
+  }
+  
+  .pipe-dot {
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid;
+    background: white;
+    z-index: 1;
+  }
+  
+  .pipe-content {
+    flex: 1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    border: 2px solid;
+  }
+  
+  .pipe-content h4 {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  
+  .pipe-content p {
+    font-size: 12px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+  
+  .pipe-content .who {
+    font-size: 11px;
+    font-weight: 600;
+    color: #718096;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  
+  .pipe-content .output {
+    font-size: 11px;
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 4px;
+    color: #2d3748;
+  }
+  
+  /* Cross-cutting */
+  .crosscut-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  
+  .crosscut-card {
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  
+  .crosscut-card h4 { font-size: 13px; margin-bottom: 8px; }
+  .crosscut-card p { font-size: 12px; color: #4a5568; line-height: 1.5; }
+  
+  /* Timeline */
+  .timeline {
+    margin-top: 12px;
+  }
+  
+  .cycle-header {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .timeline-bar {
+    display: flex;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  
+  .timeline-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    padding: 4px 6px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  
+  .timeline-months {
+    display: flex;
+    font-size: 10px;
+    color: #a0aec0;
+    margin-bottom: 24px;
+  }
+  
+  .timeline-months span {
+    text-align: center;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .section-subtitle {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 16px;
+  }
+  
+  .note-box {
+    background: #fffbeb;
+    border: 1px solid #f6e05e;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #744210;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .note-box strong { color: #92400e; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SERSP Additional Financing — Roshtkala District</h1>
+  <h2>Community Mobilization Methodology: Project Cycle Logic</h2>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Full Cycle Overview</div>
+  <div class="tab" onclick="showTab('structures')">4 Community Structures</div>
+  <div class="tab" onclick="showTab('pipeline')">Planning Pipeline</div>
+  <div class="tab" onclick="showTab('accountability')">Accountability</div>
+  <div class="tab" onclick="showTab('crosscut')">Cross-Cutting</div>
+  <div class="tab" onclick="showTab('timeline')">Timeline</div>
+</div>
+
+<div class="content">
+  
+  <!-- TAB 1: FULL CYCLE OVERVIEW -->
+  <div id="overview">
+    <div class="section-title">Full Project Cycle — From Orientation to Handover</div>
+    <div class="section-subtitle">Each row is a phase. Read left to right for the sequence within each phase.</div>
+    
+    <div class="cycle-flow">
+      
+      <div class="phase-row">
+        <div class="phase-label ph1">PHASE 1<br>Orientation &<br>Mobilization</div>
+        <div class="phase-steps">
+          <div class="step-box ph1-step">District<br>Orientation<span class="lead">NSIFT leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">Jamoat<br>Orientation<span class="lead">NSIFT leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">Village<br>Orientation<span class="lead">TFP/CDA leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">Mahalla<br>Discussions<span class="lead">CDA leads</span></div>
+        </div>
+      </div>
+      
+      <div class="phase-row">
+        <div class="phase-label ph1" style="background:#3182ce;">PHASE 1b<br>Structure<br>Formation</div>
+        <div class="phase-steps">
+          <div class="step-box ph1-step">VPC<br>Election<span class="lead">Secret ballot</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">YM & CA<br>Selection<span class="lead">VPC proposes</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">JPC<br>Formation<span class="lead">VPC nominates</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph1-step">Training<br>All Actors<span class="lead">TFP delivers</span></div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-label ph2">PHASE 2<br>Needs<br>Assessment</div>
+        <div class="phase-steps">
+          <div class="step-box ph2-step">Village<br>Profile<span class="lead">VPC + CDA</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph2-step">Climate Risk<br>Assessment<span class="lead">CA leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph2-step">6 FGDs<br>per village<span class="lead">VPC + CDA</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph2-step">Village Priority<br>Meeting (VPM)<span class="lead">VPC leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph2-step">Village Dev.<br>Plan (VDP)<span class="lead">VPC + TFP</span></div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-label ph3">PHASE 3<br>Selection &<br>Approval</div>
+        <div class="phase-steps">
+          <div class="step-box ph3-step">JPC Review<br>& Scoring<span class="lead">JPC</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph3-step">Jamoat Dev.<br>Plan (JDP)<span class="lead">JPC + TFP</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph3-step">E&S / Climate<br>Screening<span class="lead">TFP + NSIFT</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph3-step">District →<br>NSIFT → WB<span class="lead">Approvals</span></div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-label ph4">PHASE 4<br>Implementation</div>
+        <div class="phase-steps">
+          <div class="step-box ph4-step">Procurement<br>& Contracting<span class="lead">NSIFT leads</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph4-step">Construction<br>& Oversight<span class="lead">Contractors + VPC/YM</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph4-step">3-Phase<br>Social Audits<span class="lead">YM leads</span></div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-label ph5">PHASE 5<br>Handover &<br>Sustainability</div>
+        <div class="phase-steps">
+          <div class="step-box ph5-step">Final<br>Inspection<span class="lead">NSIFT + TFP</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph5-step">O&M<br>Setup<span class="lead">VPC + JPC</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph5-step">Asset<br>Handover<span class="lead">To government</span></div>
+          <span class="arrow-right">→</span>
+          <div class="step-box ph5-step">6-Month<br>Follow-up<span class="lead">TFP support</span></div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-label ph6">CYCLE 2<br>Repeat</div>
+        <div class="phase-steps">
+          <div class="step-box ph6-step" style="min-width:280px;">Same process, faster. Structures already exist.<br><span class="lead">12 months · 30% budget</span></div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="note-box">
+      <strong>Key principle:</strong> Cycle 1 (30 months, 70% budget) builds everything from scratch. Cycle 2 (12 months, 30% budget) runs the same process but faster because VPC, JPC, YM, CA already exist and are trained.
+    </div>
+  </div>
+
+  <!-- TAB 2: STRUCTURES -->
+  <div id="structures" class="hidden">
+    <div class="section-title">4 Community Structures</div>
+    <div class="section-subtitle">Set up during Phase 1. These are the people who run the project at community level.</div>
+    
+    <div class="structures-grid">
+      
+      <div class="structure-card vpc-card">
+        <h3>VPC</h3>
+        <div class="full-name">Village Project Committee</div>
+        <div class="stat"><span class="label">Level</span><span class="value">Village</span></div>
+        <div class="stat"><span class="label">How many</span><span class="value">45 VPCs (one per village unit)</span></div>
+        <div class="stat"><span class="label">Members each</span><span class="value">8–20 (depends on village size)</span></div>
+        <div class="stat"><span class="label">Gender</span><span class="value">50% women</span></div>
+        <div class="stat"><span class="label">Selection</span><span class="value">Elected by village — secret ballot</span></div>
+        <div class="role-desc">
+          <strong>What they do:</strong> Lead village-level planning. Run FGDs, facilitate Village Prioritization Meeting, prepare Village Development Plan. They are the engine of the whole process.
+        </div>
+      </div>
+      
+      <div class="structure-card jpc-card">
+        <h3>JPC</h3>
+        <div class="full-name">Jamoat Project Commission</div>
+        <div class="stat"><span class="label">Level</span><span class="value">Jamoat</span></div>
+        <div class="stat"><span class="label">How many</span><span class="value">6 JPCs (one per jamoat)</span></div>
+        <div class="stat"><span class="label">Members each</span><span class="value">7–13 (POM table) / 5–9 (POM text)</span></div>
+        <div class="stat"><span class="label">Gender</span><span class="value">50% women</span></div>
+        <div class="stat"><span class="label">Composition</span><span class="value">VPC reps + jamoat officials + specialists</span></div>
+        <div class="role-desc">
+          <strong>What they do:</strong> Review all VDPs, score and rank subprojects, allocate funding, prepare Jamoat Development Plan. They are the decision-makers.
+        </div>
+      </div>
+      
+      <div class="structure-card ym-card">
+        <h3>YM</h3>
+        <div class="full-name">Youth Monitors</div>
+        <div class="stat"><span class="label">Level</span><span class="value">Village</span></div>
+        <div class="stat"><span class="label">How many</span><span class="value">4 per village (2M + 2F) = 180 total</span></div>
+        <div class="stat"><span class="label">Gender</span><span class="value">Equal (2 men, 2 women)</span></div>
+        <div class="stat"><span class="label">Age</span><span class="value">⚠ POM says 18–35 / Under review</span></div>
+        <div class="stat"><span class="label">Selection</span><span class="value">VPC proposes, community approves</span></div>
+        <div class="role-desc">
+          <strong>What they do:</strong> Social accountability. Run 3-phase social audits (0%, 50%, 100%), community scorecards, monitor construction, support grievance mechanism. They are the watchdogs.
+        </div>
+      </div>
+      
+      <div class="structure-card ca-card">
+        <h3>CA</h3>
+        <div class="full-name">Climate Ambassadors</div>
+        <div class="stat"><span class="label">Level</span><span class="value">Village</span></div>
+        <div class="stat"><span class="label">How many</span><span class="value">2 per village (1M + 1F) = 90 total</span></div>
+        <div class="stat"><span class="label">Gender</span><span class="value">Equal (1 man, 1 woman)</span></div>
+        <div class="stat"><span class="label">Profile</span><span class="value">⚠ WB suggests teachers</span></div>
+        <div class="stat"><span class="label">Selection</span><span class="value">VPC proposes, community approves</span></div>
+        <div class="role-desc">
+          <strong>What they do:</strong> Climate risk assessment, ensure climate adaptation in VDP/JDP, raise awareness on climate change, check subprojects are climate-resilient. New role — did not exist in parent SERSP.
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="note-box">
+      <strong>⚠ POM discrepancies:</strong> Age thresholds vary across POM sections (35 vs 45) and WB says they may be removed entirely. JPC size is 7–13 in the POM table but 5–9 in the POM text. These need clarification before finalizing the methodology.
+    </div>
+  </div>
+
+  <!-- TAB 3: PLANNING PIPELINE -->
+  <div id="pipeline" class="hidden">
+    <div class="section-title">Planning Pipeline — From Data to Decisions</div>
+    <div class="section-subtitle">How community needs become funded subprojects. This is the core of the methodology.</div>
+    
+    <div class="pipeline">
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #2b6cb0;"></div>
+        <div class="pipe-content" style="border-color: #bee3f8; background: #ebf8ff;">
+          <h4 style="color:#2b6cb0;">Village Profile</h4>
+          <p>Baseline snapshot of each village — demographics, infrastructure, services, economic activities, vulnerabilities, climate risks. The "diagnosis" before any prescription.</p>
+          <div class="who">Led by: VPC with CDA support · 1 week per village</div>
+          <div class="output">→ 45 village profiles submitted to JPC and NSIFT</div>
+        </div>
+      </div>
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #b7791f;"></div>
+        <div class="pipe-content" style="border-color: #fefcbf; background: #fffff0;">
+          <h4 style="color:#b7791f;">Climate Risk Assessment</h4>
+          <p>Climate Ambassadors identify hazards specific to each village: GLOFs (glacial lake outburst floods), landslides, drought. Participatory risk mapping, historical hazard review, adaptation priorities.</p>
+          <div class="who">Led by: Climate Ambassadors with VPC</div>
+          <div class="output">→ Findings feed into Village Profile and VDP. Must NOT be standalone.</div>
+        </div>
+      </div>
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #2f855a;"></div>
+        <div class="pipe-content" style="border-color: #c6f6d5; background: #f0fff4;">
+          <h4 style="color:#2f855a;">Focus Group Discussions (FGDs)</h4>
+          <p>6 FGDs per village, each with a different group: women, youth, elders, entrepreneurs, vulnerable households, professionals. Each group identifies and prioritizes their needs.</p>
+          <div class="who">Led by: VPC with CDA facilitation · 6 groups × 45 villages = 270 FGDs</div>
+          <div class="output">→ FGD reports with prioritized needs. Women/youth priorities tracked separately.</div>
+        </div>
+      </div>
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #c53030;"></div>
+        <div class="pipe-content" style="border-color: #fed7d7; background: #fff5f5;">
+          <h4 style="color:#c53030;">Village Prioritization Meeting (VPM)</h4>
+          <p>Whole village meets. Each FGD group presents priorities (5 min each). Community discusses. Climate Ambassadors present climate considerations. Village votes on top priority. Democratic selection.</p>
+          <div class="who">Led by: VPC · Attendance: 60% households, 50% women</div>
+          <div class="output">→ VPM minutes, documented vote results, selected village priority</div>
+        </div>
+      </div>
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #553c9a;"></div>
+        <div class="pipe-content" style="border-color: #e9d8fd; background: #faf5ff;">
+          <h4 style="color:#553c9a;">Village Development Plan (VDP)</h4>
+          <p>Pulls together: village profile + climate assessment + FGD results + voted priority. Includes technical specs, budget estimate, climate considerations, gender/youth priorities, O&M plan.</p>
+          <div class="who">Prepared by: VPC with TFP support</div>
+          <div class="output">→ 45 VDPs submitted to JPC. Must align with government planning formats.</div>
+        </div>
+      </div>
+      
+      <div class="pipe-step">
+        <div class="pipe-dot" style="border-color: #285e61;"></div>
+        <div class="pipe-content" style="border-color: #b2f5ea; background: #e6fffa;">
+          <h4 style="color:#285e61;">Jamoat Development Plan (JDP)</h4>
+          <p>JPC takes all VDPs from its jamoat, reviews against criteria, scores and ranks subprojects, allocates available funds, documents rejected proposals with reasons. Packages everything into one plan.</p>
+          <div class="who">Led by: JPC with TFP support</div>
+          <div class="output">→ 6 JDPs. Publicly displayed. Submitted to district → NSIFT → WB for approval.</div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="note-box">
+      <strong>WB emphasis:</strong> Village profiles and VDPs must feed into the government's own planning system — not just exist as project documents. The JDP should inform district socio-economic plans. WB wants to see concrete mechanisms for how this happens, not just statements of intent.
+    </div>
+  </div>
+
+  <!-- TAB 4: ACCOUNTABILITY -->
+  <div id="accountability" class="hidden">
+    <div class="section-title">Accountability — 3-Phase Social Audits</div>
+    <div class="section-subtitle">Youth Monitors lead these. Three audits at critical milestones.</div>
+    
+    <div style="display:flex; gap:16px; margin-top:16px; flex-wrap:wrap;">
+      
+      <div style="flex:1; min-width:250px; border:2px solid #fed7d7; border-radius:10px; padding:20px; background:#fff5f5;">
+        <div style="font-size:32px; font-weight:800; color:#c53030;">0%</div>
+        <h4 style="color:#c53030; margin-bottom:8px;">Phase 1: After Mobilization</h4>
+        <p style="font-size:12px; color:#4a5568; line-height:1.6;">
+          <strong>When:</strong> After VPC/JPC selection, before construction<br>
+          <strong>Focus:</strong><br>
+          • Was selection process inclusive?<br>
+          • Were women/youth adequately represented?<br>
+          • Was information publicly disclosed?<br>
+          • Did community understand the process?
+        </p>
+        <div style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:11px;">
+          Output: Phase 1 audit report + action plan for improvements
+        </div>
+      </div>
+      
+      <div style="flex:1; min-width:250px; border:2px solid #fefcbf; border-radius:10px; padding:20px; background:#fffff0;">
+        <div style="font-size:32px; font-weight:800; color:#b7791f;">50%</div>
+        <h4 style="color:#b7791f; margin-bottom:8px;">Phase 2: Construction Midpoint</h4>
+        <p style="font-size:12px; color:#4a5568; line-height:1.6;">
+          <strong>When:</strong> ~50% of construction complete<br>
+          <strong>Focus:</strong><br>
+          • Quality meeting specifications?<br>
+          • Budget on track?<br>
+          • Gender inclusion in labor?<br>
+          • Timeline progress?<br>
+          • Issues identified?
+        </p>
+        <div style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:11px;">
+          Output: Phase 2 audit report + corrective action plan if needed
+        </div>
+      </div>
+      
+      <div style="flex:1; min-width:250px; border:2px solid #c6f6d5; border-radius:10px; padding:20px; background:#f0fff4;">
+        <div style="font-size:32px; font-weight:800; color:#2f855a;">100%</div>
+        <h4 style="color:#2f855a; margin-bottom:8px;">Phase 3: Completion</h4>
+        <p style="font-size:12px; color:#4a5568; line-height:1.6;">
+          <strong>When:</strong> Construction complete<br>
+          <strong>Focus:</strong><br>
+          • Final quality acceptable?<br>
+          • All work completed per design?<br>
+          • O&M committee ready?<br>
+          • Community satisfied?<br>
+          • Lessons learned?
+        </p>
+        <div style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:11px;">
+          Output: Phase 3 audit report + community sign-off + handover authorization
+        </div>
+      </div>
+      
+    </div>
+    
+    <div style="margin-top:24px;">
+      <div class="section-title">Other Accountability Mechanisms</div>
+      
+      <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px; padding:16px; border-left:4px solid #553c9a; background:#faf5ff; border-radius:0 8px 8px 0;">
+          <h4 style="font-size:13px; color:#553c9a;">Grievance Mechanism</h4>
+          <p style="font-size:12px; color:#4a5568; margin-top:6px; line-height:1.5;">NSIFT-operated. Village → Jamoat → District → Central. 15 days investigation, 30 days resolution. ⚠ WB says GRM is NSIFT's responsibility, not TFP's.</p>
+        </div>
+        <div style="flex:1; min-width:200px; padding:16px; border-left:4px solid #2b6cb0; background:#ebf8ff; border-radius:0 8px 8px 0;">
+          <h4 style="font-size:13px; color:#2b6cb0;">Public Disclosure</h4>
+          <p style="font-size:12px; color:#4a5568; margin-top:6px; line-height:1.5;">All VDPs, JDP, budgets, contracts, progress reports, audit results posted publicly at jamoat, villages, and NSIFT website.</p>
+        </div>
+        <div style="flex:1; min-width:200px; padding:16px; border-left:4px solid #2f855a; background:#f0fff4; border-radius:0 8px 8px 0;">
+          <h4 style="font-size:13px; color:#2f855a;">Community Scorecards</h4>
+          <p style="font-size:12px; color:#4a5568; margin-top:6px; line-height:1.5;">Semi-annual satisfaction surveys on participation quality, service delivery, responsiveness.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="note-box">
+      <strong>⚠ WB flag:</strong> Sana says the social audit section in your methodology is "the same old version." WB had detailed discussions with NSIFT to improve the process. You need to talk to Nodira at NSIFT and update accordingly.
+    </div>
+  </div>
+
+  <!-- TAB 5: CROSS-CUTTING -->
+  <div id="crosscut" class="hidden">
+    <div class="section-title">Cross-Cutting Themes — Throughout Everything</div>
+    <div class="section-subtitle">These run across all phases, not just one section.</div>
+    
+    <div class="crosscut-grid">
+      <div class="crosscut-card" style="border-color: #d53f8c;">
+        <h4 style="color:#d53f8c;">Gender Inclusion</h4>
+        <p>50% women in VPC. Equal gender in YM and CA. Women's priorities tracked separately in FGDs. Women in construction labor. SEA/SH prevention.</p>
+      </div>
+      <div class="crosscut-card" style="border-color: #805ad5;">
+        <h4 style="color:#805ad5;">Youth Participation</h4>
+        <p>50% of each gender under age threshold (⚠ under review). YM and CA are youth-led. Youth priorities in VDP and JDP. Youth perspectives in all planning.</p>
+      </div>
+      <div class="crosscut-card" style="border-color: #b7791f;">
+        <h4 style="color:#b7791f;">Climate Mainstreaming</h4>
+        <p>CA throughout: risk assessment → VDP integration → subproject screening → monitoring. Climate adaptation in all infrastructure designs. Not standalone.</p>
+      </div>
+      <div class="crosscut-card" style="border-color: #2f855a;">
+        <h4 style="color:#2f855a;">Component 2 Coordination</h4>
+        <p>Livelihoods orientation in all meetings. Application form distribution. Infrastructure-livelihood linkages. Handover to Implementing Partner when selected.</p>
+      </div>
+      <div class="crosscut-card" style="border-color: #2b6cb0;">
+        <h4 style="color:#2b6cb0;">Government Alignment</h4>
+        <p>Village profiles → VDPs → JDPs must feed into government planning. Not just project documents. WB wants concrete mechanisms for uptake.</p>
+      </div>
+      <div class="crosscut-card" style="border-color: #c53030;">
+        <h4 style="color:#c53030;">Special Tracking (WB Required)</h4>
+        <p>Track: (1) VPC/JPC members who enter local government; (2) Community priorities funded by other sources beyond the project. Report on these as KPIs.</p>
+      </div>
+    </div>
+    
+    <div class="note-box">
+      <strong>WB emphasis:</strong> Sana wants outcome-focused KPIs with a proper monitoring plan and frequency — not just a list of activities. Including: number of VDPs/JDPs taken up by government, subproject outcomes (students benefiting, jobs created, etc.), and MIS upload schedule.
+    </div>
+  </div>
+
+  <!-- TAB 6: TIMELINE -->
+  <div id="timeline" class="hidden">
+    <div class="section-title">Implementation Timeline</div>
+    <div class="section-subtitle">Two cycles total. Cycle 1 builds everything. Cycle 2 is faster.</div>
+    
+    <div class="cycle-header" style="background:linear-gradient(135deg, #2b6cb0, #2c5282);">
+      <span>CYCLE 1</span>
+      <span>December 2025 — June 2028 · 30 months · 70% budget</span>
+    </div>
+    
+    <div class="timeline-bar">
+      <div class="timeline-segment" style="flex:2; background:#2b6cb0;">Months 1–2<br>Mobilization</div>
+      <div class="timeline-segment" style="flex:3; background:#2f855a;">Months 3–5<br>Needs Assessment</div>
+      <div class="timeline-segment" style="flex:1; background:#b7791f;">Month 6<br>Approvals</div>
+      <div class="timeline-segment" style="flex:18; background:#c53030;">Months 7–24<br>Implementation & Monitoring</div>
+      <div class="timeline-segment" style="flex:6; background:#553c9a;">Months 25–30<br>Handover</div>
+    </div>
+    
+    <div style="display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;">
+      <div style="font-size:11px; padding:6px 10px; background:#ebf8ff; border-radius:4px; border:1px solid #bee3f8; color:#2a4365;">
+        Orientation → Structure setup → Training
+      </div>
+      <div style="font-size:11px; padding:6px 10px; background:#f0fff4; border-radius:4px; border:1px solid #c6f6d5; color:#22543d;">
+        Village profiles → FGDs → VPM → VDPs → JDPs
+      </div>
+      <div style="font-size:11px; padding:6px 10px; background:#fffff0; border-radius:4px; border:1px solid #fefcbf; color:#744210;">
+        District → NSIFT → WB no-objection
+      </div>
+      <div style="font-size:11px; padding:6px 10px; background:#fff5f5; border-radius:4px; border:1px solid #fed7d7; color:#742a2a;">
+        Procurement → Construction → 3 Social Audits
+      </div>
+      <div style="font-size:11px; padding:6px 10px; background:#faf5ff; border-radius:4px; border:1px solid #e9d8fd; color:#44337a;">
+        Final inspection → O&M → Asset handover → Follow-up
+      </div>
+    </div>
+    
+    <div class="cycle-header" style="background:linear-gradient(135deg, #285e61, #2c7a7b);">
+      <span>CYCLE 2</span>
+      <span>July 2028 — June 2029 · 12 months · 30% budget</span>
+    </div>
+    
+    <div class="timeline-bar">
+      <div class="timeline-segment" style="flex:2; background:#285e61;">Months 1–2<br>Planning</div>
+      <div class="timeline-segment" style="flex:2; background:#2f855a;">Months 3–4<br>Approvals</div>
+      <div class="timeline-segment" style="flex:6; background:#c53030;">Months 5–10<br>Implementation</div>
+      <div class="timeline-segment" style="flex:2; background:#553c9a;">Months 11–12<br>Completion</div>
+    </div>
+    
+    <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+      <div style="font-size:11px; padding:6px 10px; background:#e6fffa; border-radius:4px; border:1px solid #b2f5ea; color:#234e52;">
+        Structures already exist. Updated needs assessment. Revised VDPs/JDP. Same approval process.
+      </div>
+    </div>
+    
+    <div class="note-box">
+      <strong>⚠ WB comment (Damira):</strong> Cycle 2 should start in 2027, not 2028. This needs checking against the POM and clarification in the revised methodology.
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(tabId) {
+  // Hide all content
+  document.querySelectorAll('.content > div').forEach(div => div.classList.add('hidden'));
+  // Show selected
+  document.getElementById(tabId).classList.remove('hidden');
+  // Update tab styles
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
